@@ -1,0 +1,11 @@
+#!/bin/bash
+
+exec 3>&1 # make stdout available as fd 3 for the result
+exec 1>&2 # redirect all output to stderr for logging
+
+payload="$(cat <&0)"
+
+jq -r '.version.branches | fromjson' <<< "$payload" > $1/branches.json
+
+jq -n --argjson payload "$payload" \
+  '{version: $payload.version}' >&3
