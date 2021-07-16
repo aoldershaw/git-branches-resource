@@ -58,7 +58,7 @@ resource_types:
 * `branch_regex`: *Optional.* If specified, the resource will only detect
   branches that have a name matching the expression. Patterns are
   [grep](https://www.gnu.org/software/grep/manual/grep.html) compatible
-  (extended matching enabled).
+  (extended matching enabled, matches entire lines only).
 
 * `git_config`: *Optional*. If specified as (list of pairs `name` and `value`)
   it will configure git global options, setting each name with each value.

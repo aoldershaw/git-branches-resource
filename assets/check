@@ -29,10 +29,8 @@ all_branches=$(git ls-remote --heads "$uri" | \
   sed -e 's|^refs/heads/||' | \
   sort)
 
-# echo "$all_branches"
-
 if [ -n "$branch_regex" ]; then
-  filtered_branches=$(echo "$all_branches" | grep "$branch_regex")
+  filtered_branches=$(echo "$all_branches" | grep -Ex "$branch_regex")
 else
   filtered_branches="$all_branches"
 fi
