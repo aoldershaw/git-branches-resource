@@ -22,33 +22,6 @@ branch_regex=$(jq -r '.source.branch_regex // ""' <<< "$payload")
 prev_branches=$(jq -r '.version.branches // ""' <<< "$payload")
 git_config_payload=$(jq -r '.source.git_config // []' <<< "$payload")
 
-configure_git_global "${git_config_payload}"
+configure_git_global "$payload"
 
-all_branches=$(git ls-remote --heads "$uri" | \
-  cut -f2 | \
-  sed -e 's|^refs/heads/||' | \
-  sort)
-
-if [ -n "$branch_regex" ]; then
-  filtered_branches=$(echo "$all_branches" | grep -Ex "$branch_regex")
-else
-  filtered_branches="$all_branches"
-fi
-
-cur_branches=$(jq -R -s -c 'split("\n") | map(select(length > 0))' <<< "$filtered_branches")
-timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-cur_version=$(jq -n --argjson branches "$cur_branches" --arg timestamp "$timestamp" \
-  '{branches: $branches | tostring, timestamp: $timestamp}')
-prev_version=$(jq -r '.version' <<< "$payload")
-
-if [ -z "$prev_branches" ]; then
-  echo "[$cur_version]" >&3
-else
-  branches_eq=$(jq -n --argjson cur_branches "$cur_branches" --arg prev_branches "$prev_branches" \
-    '$cur_branches == ($prev_branches | fromjson)')
-  if [ "$branches_eq" = "true" ]; then
-    jq -n --argjson payload "$payload" '[$payload.version]' >&3
-  else
-    jq -n --argjson payload "$payload" --argjson cur_version "$cur_version" '[$payload.version, $cur_version]' >&3
-  fi
-fi
+python3 $(dirname $0)/run-check.py "$payload" >&3

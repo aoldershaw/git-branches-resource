@@ -5,7 +5,8 @@ FROM ${base_image} AS resource
 RUN apk add --no-cache \
   bash \
   git \
-  jq
+  jq \
+  python3
 
 WORKDIR /root
 RUN apk add --no-cache \
