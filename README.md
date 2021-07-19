@@ -56,9 +56,11 @@ resource_types:
   `GIT_SSL_NO_VERIFY=true`.
 
 * `branch_regex`: *Optional.* If specified, the resource will only detect
-  branches that have a name matching the expression. Patterns are
-  [grep](https://www.gnu.org/software/grep/manual/grep.html) compatible
-  (extended matching enabled, matches entire lines only).
+  branches that have a name matching the expression. Patterns must be
+  compatible with the [Python `re` package](https://docs.python.org/3/library/re.html).
+  If the branch contains a named capture group (e.g. `(?P<group_name>...)`),
+  its value will be included in the `branches.json` file under the `.groups`.
+  Refer to the [#example](#example) to learn more.
 
 * `git_config`: *Optional*. If specified as (list of pairs `name` and `value`)
   it will configure git global options, setting each name with each value.
@@ -103,7 +105,7 @@ resources:
   type: git-branches
   source:
     uri: git@github.com:concourse/concourse.git
-    branch_regex: release/.*
+    branch_regex: release/(?P<version_minor>\d+\.\d+)\.x
     private_key: |
       -----BEGIN RSA PRIVATE KEY-----
       MIIEowIBAAKCAQEAtCS10/f7W7lkQaSgD/mVeaSOvSF9ql4hf/zfMwfVGgHWjj+W
@@ -127,9 +129,10 @@ jobs:
   - across:
     - var: branch
       values: ((.:branches))
-    set_pipeline: my-repo
+    set_pipeline: release
     file: ci/pipelines/child.yml
-    instance_vars: {branch: ((.:branch))}
+    instance_vars: {version: ((.:branch.groups.version_minor))}
+    vars: {branch: ((.:branch.name))}
 ```
 
 `ci/pipelines/child.yml`
@@ -164,10 +167,10 @@ resources:
         args:
           - -e
           - |
-            echo "running some tests for branch ((branch))!"
+            echo "running some tests for version ((version))!"
 ```
 
-## Behavior
+## Behaviour
 
 ### `check`: Check for changes to the branch set.
 
@@ -180,7 +183,9 @@ are new or removed, a new version is emitted.
 Produces the following file based on the version being fetched:
 
 * `branches.json`: A file containing the list of current branches, encoded as a
-  JSON array of strings.
+  JSON array of objects containing the field `name`. If `source.branch_regex`
+  is configured, it will also include any named capture groups as sub-fields
+  under the field `groups`.
 
 
 ### `out`: No-op.
