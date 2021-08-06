@@ -6,7 +6,9 @@ RUN apk add --no-cache \
   bash \
   git \
   jq \
-  python3
+  python3 \
+  openssh-client-default \
+  openssh-client-common
 
 WORKDIR /root
 RUN apk add --no-cache \
