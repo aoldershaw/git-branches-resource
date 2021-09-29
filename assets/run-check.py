@@ -20,7 +20,7 @@ def main():
 
     if 'branch_regex' in source:
         regex = re.compile(source['branch_regex'])
-        branches = [branch for branch in branches if regex.match(branch)]
+        branches = [branch for branch in branches if regex.search(branch)]
 
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     version = {

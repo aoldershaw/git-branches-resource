@@ -10,7 +10,7 @@ def main():
     source = payload['source']
     if 'branch_regex' in source:
         regex = re.compile(source['branch_regex'])
-        output = [{'name': branch, 'groups': regex.match(branch).groupdict()} for branch in branches]
+        output = [{'name': branch, 'groups': regex.search(branch).groupdict()} for branch in branches]
     else:
         output = [{'name': branch} for branch in branches]
 
