@@ -18,13 +18,26 @@ def main():
     lines = [line.strip() for line in result.stdout.decode('utf-8').split('\n') if line.strip()]
     branches = [line.split()[1].removeprefix('refs/heads/') for line in lines]
 
-    if 'branch_regex' in source:
-        regex = re.compile(source['branch_regex'])
-        branches = [branch for branch in branches if regex.search(branch)]
+    branch_regexes = []
+    if 'branch_regexes' in source:
+        branch_regexes = [re.compile(regex) for regex in source['branch_regexes']]
+
+    elif 'branch_regex' in source:
+        branch_regexes = [re.compile(source['branch_regex'])]
+
+    filtered_branches = []
+    if branch_regexes:
+        for branch in branches:
+            for regex in branch_regexes:
+                if regex.fullmatch(branch):
+                    filtered_branches.append(branch)
+                    break
+    else:
+        filtered_branches = branches
 
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     version = {
-        'branches': json.dumps(branches),
+        'branches': json.dumps(filtered_branches),
         'timestamp': timestamp,
     }
 
