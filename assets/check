@@ -18,6 +18,7 @@ configure_git_ssl_verification "$payload"
 configure_credentials "$payload"
 
 uri=$(jq -r '.source.uri // ""' <<< "$payload")
+include_git_heads=$(jq -r '.source.include_git_heads // ""' <<< "$payload")
 branch_regex=$(jq -r '.source.branch_regex // ""' <<< "$payload")
 prev_branches=$(jq -r '.version.branches // ""' <<< "$payload")
 git_config_payload=$(jq -r '.source.git_config // []' <<< "$payload")

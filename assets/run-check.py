@@ -14,17 +14,29 @@ def main():
         sys.exit(1)
     uri = source['uri']
 
+    include_git_heads = True if 'include_git_heads' in source and source['include_git_heads'] == 'true' else False
+
     result = subprocess.run(['git', 'ls-remote', '--heads', uri], stdout=subprocess.PIPE)
     lines = [line.strip() for line in result.stdout.decode('utf-8').split('\n') if line.strip()]
-    branches = [line.split()[1].removeprefix('refs/heads/') for line in lines]
+    branches = {}
+    for line in lines:
+        branch = line.split()
+        branches[branch[0]] = branch[1].removeprefix('refs/heads/')
 
+    filtered_branches = {}
     if 'branch_regex' in source:
         regex = re.compile(source['branch_regex'])
-        branches = [branch for branch in branches if regex.match(branch)]
+        for head, name in branches.items():
+            if regex.match(name):
+                filtered_branches[head] = name
+    else:
+        filtered_branches = branches
 
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    out_branches = filtered_branches if include_git_heads is True else list(filtered_branches.values())
+
     version = {
-        'branches': json.dumps(branches),
+        'branches': json.dumps(out_branches),
         'timestamp': timestamp,
     }
 

@@ -77,6 +77,8 @@ resource_types:
   * `proxy_user`: *Optional.* If the proxy requires authentication, use this username
   * `proxy_password`: *Optional.* If the proxy requires authenticate,
       use this password
+      
+* `include_git_heads`: *Optional.* Include hash commit from the head of every branch. Instead of a list of branch names `["branch1", "branch2"]`, an object of commit hash -> branch key values `{"19f75c129076fb3ade144ff95225c77de04d49ee": "branch1", "cc5983bc9f3e6b4107d2a23d08099c021562df06": "branch2"}`. This can be used to apply further filtering in a following task e.g. filter versions for a specific path.
 
 ### Example
 
