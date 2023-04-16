@@ -1,0 +1,5 @@
+---
+global:
+  name: git-branches-resource
+  team: ops
+  type: docker_image
