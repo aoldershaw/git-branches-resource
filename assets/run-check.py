@@ -15,6 +15,13 @@ def main():
     uri = source['uri']
 
     result = subprocess.run(['git', 'ls-remote', '--heads', uri], stdout=subprocess.PIPE)
+    if result.returncode != 0:
+        raise subprocess.CalledProcessError(
+            returncode=result.returncode,
+            cmd=result.args,
+            stderr=result.stderr
+        )
+
     lines = [line.strip() for line in result.stdout.decode('utf-8').split('\n') if line.strip()]
     branches = [line.split()[1].removeprefix('refs/heads/') for line in lines]
 
